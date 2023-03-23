@@ -27,9 +27,6 @@ def motifdf4plotting(df, conn):
         motif = ''.join(motif)
         aux_lst = [item[0], motif, motif_pos_corrected]
         motifs.append(aux_lst)
-        motif_lst.append(item[1])
-    motif_lst = list(set(motif_lst))
-    motif_lst = tuple(motif_lst)
     
     outdf = pd.DataFrame(motifs, columns=['seq', 'motif', 'motif_location'])  
     return outdf
