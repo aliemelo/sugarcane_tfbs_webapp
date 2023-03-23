@@ -11,7 +11,8 @@ sns.set_style('white')
 
 
 # Functions ------------------------------------------------ #
-def motifdf4plotting(df):
+def motifdf4plotting(df, conn):
+    motif_lst = []
     tmp = df.values.tolist()
     motifs = []
     for item in tmp:
@@ -21,7 +22,17 @@ def motifdf4plotting(df):
         motif_pos_corrected = - motif_pos
         aux_lst = [item[0], item[1], motif_pos_corrected]
         motifs.append(aux_lst)
-    outdf = pd.DataFrame(motifs, columns=['seq', 'motif', 'motif_location'])
+        motif_lst.append(item[1])
+    motif_lst = list(set(motif_lst))
+    tfbs_gene_association = pd.read_sql(f"SELECT * FROM tair_association WHERE gene_id in {motif_lst}", conn)
+    tmp_dict = tfbs_gene_association.set_index('gene_id').T.to_dict('list')
+    motifs2 = []
+    for item in motifs:
+        for i in item:
+            motif = tmp_dict[i[1]][0]
+            aux_lst = [i[0], motif, i[2]]
+            motifs2.append(aux_lst)
+    outdf = pd.DataFrame(motifs2, columns=['seq', 'motif', 'motif_location'])  
     return outdf
 
 def cluster_by_exp(df):
@@ -67,7 +78,7 @@ conn = st.session_state['conn']
 genes = st.session_state['genes']
 len_df = pd.read_sql(f"SELECT * FROM promoter_len WHERE seq in {genes}", conn)
 motif_df = st.session_state['my_genes_motifs_df']
-motif4plotting_df = motifdf4plotting(motif_df)
+motif4plotting_df = motifdf4plotting(motif_df, conn)
 data = st.session_state['data']
 
 # Cluster by expression
