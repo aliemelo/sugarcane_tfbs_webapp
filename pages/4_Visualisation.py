@@ -12,7 +12,10 @@ sns.set_style('white')
 
 # Functions ------------------------------------------------ #
 def motifdf4plotting(df, conn):
-    motif_lst = []
+    motif_lst = df['motif'].to_list()
+    motif_lst = tuple(motif_lst)
+    tfbs_gene_association = pd.read_sql(f"SELECT * FROM tair_association WHERE gene_id in {motif_lst}", conn)
+    tmp_dict = tfbs_gene_association.set_index('gene_id').T.to_dict('list')
     tmp = df.values.tolist()
     motifs = []
     for item in tmp:
@@ -20,20 +23,15 @@ def motifdf4plotting(df, conn):
         motif_end = int(item[3])
         motif_pos = (motif_start + motif_end) // 2
         motif_pos_corrected = - motif_pos
-        aux_lst = [item[0], item[1], motif_pos_corrected]
+        motif = tmp_dict[item[1]]
+        motif = ''.join(motif)
+        aux_lst = [item[0], motif, motif_pos_corrected]
         motifs.append(aux_lst)
         motif_lst.append(item[1])
     motif_lst = list(set(motif_lst))
     motif_lst = tuple(motif_lst)
-    tfbs_gene_association = pd.read_sql(f"SELECT * FROM tair_association WHERE gene_id in {motif_lst}", conn)
-    tmp_dict = tfbs_gene_association.set_index('gene_id').T.to_dict('list')
-    motifs2 = []
-    for item in motifs:
-        for i in item:
-            motif = tmp_dict[i[1]]
-            aux_lst = [i[0], motif, i[2]]
-            motifs2.append(aux_lst)
-    outdf = pd.DataFrame(motifs2, columns=['seq', 'motif', 'motif_location'])  
+    
+    outdf = pd.DataFrame(motifs, columns=['seq', 'motif', 'motif_location'])  
     return outdf
 
 def cluster_by_exp(df):
