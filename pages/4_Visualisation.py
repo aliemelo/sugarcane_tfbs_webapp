@@ -30,7 +30,7 @@ def motifdf4plotting(df, conn):
     motifs2 = []
     for item in motifs:
         for i in item:
-            motif = tmp_dict[i[1]][0]
+            motif = tmp_dict[i[1]]
             aux_lst = [i[0], motif, i[2]]
             motifs2.append(aux_lst)
     outdf = pd.DataFrame(motifs2, columns=['seq', 'motif', 'motif_location'])  
