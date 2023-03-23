@@ -24,6 +24,7 @@ def motifdf4plotting(df, conn):
         motifs.append(aux_lst)
         motif_lst.append(item[1])
     motif_lst = list(set(motif_lst))
+    motif_lst = tuple(motif_lst)
     tfbs_gene_association = pd.read_sql(f"SELECT * FROM tair_association WHERE gene_id in {motif_lst}", conn)
     tmp_dict = tfbs_gene_association.set_index('gene_id').T.to_dict('list')
     motifs2 = []
